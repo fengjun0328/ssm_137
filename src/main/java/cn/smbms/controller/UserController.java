@@ -30,7 +30,7 @@ public class UserController {
     @Resource
     private UserService userService;
 
-    @Resource(name="roleService")
+    @Resource(name = "roleService")
     private RoleService roleService;
 
     /**
@@ -67,11 +67,11 @@ public class UserController {
         }
     }
 
-  /*  @ExceptionHandler(value = {RuntimeException.class})
-    public String error(RuntimeException e,HttpSession session){
-        session.setAttribute("e",e);
+    @ExceptionHandler(value = {RuntimeException.class})
+    public String error(RuntimeException e, HttpSession session) {
+        session.setAttribute("e", e);
         return "error";
-    }*/
+    }
 
 
     /**
@@ -106,9 +106,9 @@ public class UserController {
      * @return
      */
     @RequestMapping("/userlist.html")
-    public String getUsers(@RequestParam(value = "queryname" ,required = false) String queryname,
-                           @RequestParam(value = "queryUserRole" ,required = false) String queryUserRole,
-                           @RequestParam(value = "pageIndex" ,required = false) String pageIndex,
+    public String getUsers(@RequestParam(value = "queryname", required = false) String queryname,
+                           @RequestParam(value = "queryUserRole", required = false) String queryUserRole,
+                           @RequestParam(value = "pageIndex", required = false) String pageIndex,
                            HttpServletRequest request) {
         //查询用户列表
 
@@ -129,7 +129,7 @@ public class UserController {
             try {
                 currentPageNo = Integer.valueOf(pageIndex);
             } catch (NumberFormatException e) {
-                return  "error.jsp";
+                return "error.jsp";
             }
         }
         //总数量（表）
@@ -164,36 +164,37 @@ public class UserController {
 
     /**
      * 跳转添加页面
+     *
      * @return
      */
     @RequestMapping("/adduser.html")
-    public String addUser(){
+    public String addUser() {
         return "useradd";
     }
 
     /**
      * 注册的方法
+     *
      * @param user
      * @param session
      * @return
      */
-    @RequestMapping(value = "/save.html" ,method = RequestMethod.POST)
+    @RequestMapping(value = "/save.html", method = RequestMethod.POST)
     public String save(User user, HttpSession session,
-                       @RequestParam(value = "attr" ,required = false) MultipartFile attr
-                        ){
-        String idPicPath=upload(session,attr);
-        if("useradd".equals(idPicPath)){
-            return  "useradd";
+                       @RequestParam(value = "attr", required = false) MultipartFile attr
+    ) {
+        String idPicPath = upload(session, attr);
+        if ("useradd".equals(idPicPath)) {
+            return "useradd";
         }
         user.setCreationDate(new Date());
-        user.setCreatedBy(((User)session.getAttribute(Constants.USER_SESSION)).getId());
+        user.setCreatedBy(((User) session.getAttribute(Constants.USER_SESSION)).getId());
         user.setIdPicPath(idPicPath);
-        if(userService.add(user)){
+        if (userService.add(user)) {
             return "redirect:/user/userlist.html";
         }
         return "useradd";
     }
-
 
 
     /**
@@ -211,119 +212,123 @@ public class UserController {
 
     /**
      * 使用reset风格查看的方法
+     *
      * @param id
      * @param model
      * @return
      */
     @RequestMapping("/view.html/{id}")
-    public String getUser(@PathVariable String id, Model model){
-        User user=userService.getUserById(id);
-        model.addAttribute("user",user);
-        String path=user.getIdPicPath();
-        System.out.println("===========>"+path);
-        user.setIdPicPath(path.substring(path.lastIndexOf(File.separator)+1));
-        System.out.println("============>"+user.getIdPicPath());
+    public String getUser(@PathVariable String id, Model model) {
+        User user = userService.getUserById(id);
+        model.addAttribute("user", user);
+        String path = user.getIdPicPath();
+        System.out.println("===========>" + path);
+        user.setIdPicPath(path.substring(path.lastIndexOf(File.separator) + 1));
+        System.out.println("============>" + user.getIdPicPath());
         return "userview";
     }
 
     /**
      * 跳转修改页面的方法
+     *
      * @param uid
      * @param model
      * @return
      */
     @RequestMapping("/modify.html")
-    public String midify( String uid, Model model){
-        User user=userService.getUserById(uid);
-        model.addAttribute("user",user);
+    public String midify(String uid, Model model) {
+        User user = userService.getUserById(uid);
+        model.addAttribute("user", user);
         System.out.println(user);
         return "usermodify";
     }
+
     /**
      * 保存修改的方法
+     *
      * @param session
      * @return
      */
-    @RequestMapping(value = "/domodify.html" ,method = RequestMethod.POST)
-    public String doModify(User user,HttpSession session){
+    @RequestMapping(value = "/domodify.html", method = RequestMethod.POST)
+    public String doModify(User user, HttpSession session) {
         user.setModifyDate(new Date());
-        user.setModifyBy(((User)session.getAttribute(Constants.USER_SESSION)).getId());
-        if(userService.modify(user)){
+        user.setModifyBy(((User) session.getAttribute(Constants.USER_SESSION)).getId());
+        if (userService.modify(user)) {
             return "redirect:/user/userlist.html";
         }
         return "usermodify";
     }
 
 
-    public String upload(HttpSession session,MultipartFile attr){
-        String idPicPath=null;
-        if(!attr.isEmpty()){
+    public String upload(HttpSession session, MultipartFile attr) {
+        String idPicPath = null;
+        if (!attr.isEmpty()) {
             //获取文件的路径  File.separator系统的自适应分隔符
-            String filePath=session.getServletContext().getRealPath("statics"+ File.separator +"uploadfiles");
+            String filePath = session.getServletContext().getRealPath("statics" + File.separator + "uploadfiles");
             //获取源文件名
-            String fileOldName=attr.getOriginalFilename();
+            String fileOldName = attr.getOriginalFilename();
             //获取文件的后缀
 //            String sufix=fileOldName.substring(fileOldName.lastIndexOf(".")+1,fileOldName.length());
-            String sufix= FilenameUtils.getExtension(fileOldName);
-            List<String> sufixs= Arrays.asList(new String[]{"jpg","png","jpeg","pneg"});
-            if(attr.getSize()>500000){
-                session.setAttribute("uploadFileError","文件太大了");
+            String sufix = FilenameUtils.getExtension(fileOldName);
+            List<String> sufixs = Arrays.asList(new String[]{"jpg", "png", "jpeg", "pneg"});
+            if (attr.getSize() > 500000) {
+                session.setAttribute("uploadFileError", "文件太大了");
                 return "useradd";
-            }else if(sufixs.contains(sufix)){
+            } else if (sufixs.contains(sufix)) {
                 //重新命名，目的就是解决重名和字符乱码问题
-                String fileName=System.currentTimeMillis()+new Random().nextInt(1000000)+"_person."+sufix;
-                File file=new File(filePath,fileName);
-                if(!file.exists()){
+                String fileName = System.currentTimeMillis() + new Random().nextInt(1000000) + "_person." + sufix;
+                File file = new File(filePath, fileName);
+                if (!file.exists()) {
                     file.mkdirs();
                 }
                 try {
                     //文件上传
                     attr.transferTo(file);
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
-                    session.setAttribute("uploadFileError","上传失败");
+                    session.setAttribute("uploadFileError", "上传失败");
                     return "useradd";
                 }
-                idPicPath=filePath+File.separator+fileName;
-                System.out.println("=====>"+idPicPath);
-            }else{
-                session.setAttribute("uploadFileError","文件格式不对");
+                idPicPath = filePath + File.separator + fileName;
+                System.out.println("=====>" + idPicPath);
+            } else {
+                session.setAttribute("uploadFileError", "文件格式不对");
                 return "useradd";
             }
         }
-        return  idPicPath;
+        return idPicPath;
     }
 
 
     @RequestMapping("/useradd_from.html")
-    public String useadd(@ModelAttribute("user") User user){
-        return  "user/useradd";
+    public String useadd(@ModelAttribute("user") User user) {
+        return "user/useradd";
     }
 
-    @RequestMapping(value = "/useradd_from.html",method = RequestMethod.POST)
-    public String save_user(User user,HttpSession session){
+    @RequestMapping(value = "/useradd_from.html", method = RequestMethod.POST)
+    public String save_user(User user, HttpSession session) {
         user.setCreationDate(new Date());
-        user.setCreatedBy(((User)session.getAttribute(Constants.USER_SESSION)).getId());
-        if(userService.add(user)){
+        user.setCreatedBy(((User) session.getAttribute(Constants.USER_SESSION)).getId());
+        if (userService.add(user)) {
             return "redirect:/user/userlist.html";
         }
-        return  "user/useradd";
+        return "user/useradd";
     }
 
 
     @RequestMapping("/userCodeIsExits.html")
     @ResponseBody
-    public  Object  userCodeIsExits(String userCode){
+    public Object userCodeIsExits(String userCode) {
         //判断用户账号是否可用
         HashMap<String, String> resultMap = new HashMap<String, String>();
-        if(StringUtils.isNullOrEmpty(userCode)){
+        if (StringUtils.isNullOrEmpty(userCode)) {
             //userCode == null || userCode.equals("")
             resultMap.put("userCode", "exist");
-        }else{
+        } else {
             User user = userService.selectUserCodeExist(userCode);
-            if(null != user){
-                resultMap.put("userCode","exist");
-            }else{
+            if (null != user) {
+                resultMap.put("userCode", "exist");
+            } else {
                 resultMap.put("userCode", "notexist");
             }
         }
@@ -335,11 +340,11 @@ public class UserController {
 
     @RequestMapping(value = "/user_view")
     @ResponseBody
-    public User getUserById(String id){
+    public User getUserById(String id) {
         try {
-            User user=userService.getUserById(id);
+            User user = userService.getUserById(id);
             return user;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
